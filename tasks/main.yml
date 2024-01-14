@@ -1,0 +1,56 @@
+---
+# tasks file for mariadb
+- name: update server
+  yum:
+    name: "*"
+    update_only: true
+    state: latest
+- name: disables Selinux
+  selinux:
+    state: disabled
+- name: install epel
+  yum:
+    name: epel-release
+    state: latest
+  register: epel
+- name: install database
+  yum:
+    name: "{{ item }}"
+    state: latest
+  when: (epel is success)
+  loop: 
+    - "{{ package }}"
+    - mysql-community-release
+    - mysql-connector-python
+- name: Enable mariaDB Service
+  service:
+    name: "{{ services }}"
+    enabled: yes
+    state: started
+- name: create database
+  mysql_db:
+    name: "{{ item }}"
+    state: present
+  with_items: 
+   - database1
+   - database2
+- name: craete user
+  mysql_user:
+    name: "{{ item.user }}"
+    password: "{{ item.password }}"
+    host:
+     - localhost
+     - 127.0.0.1
+    login_user: "root"
+    login_password: ""
+    priv: "{{ item.user }}.*:ALL "
+    state: present
+    check_implicit_admin: yes
+  with_items:
+   - "{{ user_list }}"
+- name: Reload table
+  command: 'mysql -ne "{{ item }}"'
+  with_items:
+    - FLUSH PRIVILEGES
+  notify: restart mariadb
+
