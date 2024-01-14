@@ -1,7 +1,7 @@
 ---
 # vars file for mariadb
 user_list:
-  - {user: 'admin1', password: '123456'}
-  - {user: 'admin2', password: '123456'}
+  - {user: '<user1>', password: '<your-password>'}
+  - {user: '<user2>', password: '<your-password>'}
 services: mariadb
 package: mariadb-server
